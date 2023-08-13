@@ -17,6 +17,8 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "stdio.h"
+#include "string.h"
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -58,6 +60,9 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* Buffer used for transmission and number of transmissions */
+char aTxBuffer[1024];
+int nbtime=1;
 /* USER CODE END 0 */
 
 /* USER CODE END 0 */
@@ -94,15 +99,25 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  /* Start Timer event generation */
+  HAL_TIM_Base_Start_IT(&htim2);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    if(HAL_GPIO_ReadPin (B1_GPIO_Port, B1_Pin)) {
+      //Turn LED OFF
+      HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+    } else {
+      //Turn LED ON
+      HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+    }
   }
   /* USER CODE END 3 */
 }
@@ -270,6 +285,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  sprintf(aTxBuffer, "STM32CubeMX rocks %d times\n", ++nbtime);
+  HAL_UART_Transmit(&huart2, (uint8_t *)aTxBuffer, strlen(aTxBuffer), 5000);
+}
 
 /* USER CODE END 4 */
 
